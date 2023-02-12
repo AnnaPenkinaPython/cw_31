@@ -13,7 +13,7 @@ def test_data():
   'operationAmount': {'amount': '31957.58',
                       'currency': {'code': 'RUB', 'name': 'руб.'}},
   'to': 'Счет 64686473678894779589'},
- {'date': '2019-07-03T18:35:29.512364',
+ {'date': '2020-07-03T18:35:29.512364',
   'description': 'Перевод организации',
   'id': 41428829,
   'operationAmount': {'amount': '8221.37',
