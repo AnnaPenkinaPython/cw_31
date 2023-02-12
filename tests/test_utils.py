@@ -1,17 +1,23 @@
+import pytest
 
-from utils import getting_json_from_web, finding_ides
+from utils import get_filtered_data, get_data, get_last_values, get_formatted_data
 
-test_link = "https://www.jsonkeeper.com/b/MBOG"
-main_link = "https://www.jsonkeeper.com/b/FGAS"
+def test_get_data(test_url):
+    assert len(get_data(test_url)[0]) > 0
+    assert get_data("https://wrong.url.com/")[0] is None
+    assert get_data("https://github.com/AnnaPenkinaPython/unittest_proj3")[0] is None
+    assert get_data("https://github.com/AnnaPenkinaPython/unittest_proj4")[0] is None
 
+def test_get_filtered_data(test_data):
+    assert len(get_filtered_data(test_data)) == 4
+    assert len(get_filtered_data(test_data, filtered_empty_from=True)) == 2
 
-def test_getting_json_from_web():
-    pass
+def test_get_last_values(test_data):
+    data = get_last_values(test_data, 4)
+    assert data[0]["date"] == '2020-07-03T18:35:29.512364'
+    assert len(data) == 4
 
-
-def test_for_finding_ides():
-    assert finding_ides(main_link, 10, False) == [317987878, 634356296, 260972664, 147815167, 893507143, 893507143,
-                                                  286706711, 988276204, 361044570, 921286598]
-    assert finding_ides(main_link, 2, True) == [863064926, 114832369]
-    assert finding_ides(main_link, 1, False) == [317987878]
-    assert finding_ides(main_link) == [863064926, 114832369, 154927927, 482520625, 801684332]
+def test_get_formatted_data(test_data):
+    data = get_formatted_data(test_data)
+   # print(data)
+    #assert data ==

@@ -1,23 +1,24 @@
 
-from utils import finding_ides, getting_json_from_web, key_in_list
+from utils import get_data, get_filtered_data, get_last_values, get_formatted_data
 
-link = "https://www.jsonkeeper.com/b/FGAS"
+def main():
+    OPERATIONS_URL = "https://file.notion.so/f/s/d22c7143-d55e-4f1d-aa98-e9b15e5e5efc/operations.json?spaceId=0771f0bb-b4cb-4a14-bc05-94cbd33fc70d&table=block&id=f11058ed-10ad-42ea-a13d-aad1945e5421&expirationTimestamp=1676232231377&signature=UGD15yohc4HhOC_ITwmF5dCopwaVVP09L0gvYKuCjUM&downloadName=operations.json"
+    FILTERED_EMPTY_FROM = True
+    COUNT_LAST_VALUES = 5
 
-file = getting_json_from_web(link)
-list_of_id = finding_ides(link)
-for idefic in list_of_id:
-    """находим инфо по каждому id"""
-    for item in file:
-        if len(item) != 0 and item['id'] == idefic:
-            time_data = item['date'].split('T')
-            date_ = time_data[0].split('-')
-            normal_date = f"{date_[2]}.{date_[1]}.{date_[0]}"
-            disc = item['description']
-            abs_from = key_in_list('from', item)
-            to = item['to'].split(' ')
-            num_of_trans = to[1]
-            summ = item["operationAmount"]["amount"]
-            cur = item["operationAmount"]["currency"]["name"]
-            """собираем оставшуюся необходимую информацию и делаем вывод транзакции"""
-            print(f"""{normal_date} {disc}\n{abs_from}"""
-                  f"""{to[0]} **{num_of_trans[-4:]}\n{summ} {cur}\n""")
+    data, info = get_data(OPERATIONS_URL)
+    if not data:
+        exit(info)
+    else:
+        print(info)
+
+    data = get_filtered_data(data, filtered_empty_from=FILTERED_EMPTY_FROM)
+    data = get_last_values(data, COUNT_LAST_VALUES)
+    data = get_formatted_data(data)
+
+    print("info: вывод данных:")
+    for row in data:
+        print(row, end='\n\n')
+
+if __name__ == "__main__":
+    main()

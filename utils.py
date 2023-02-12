@@ -1,44 +1,47 @@
 import requests
+from datetime import datetime
+from pprint import pprint
 
+def get_data(url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json(), "данные получены успешно"
+        return None, f"ERROR: status_code: {response.status_code}"
+    except requests.exceptions.ConnectionError:
+        return None, "ERROR: ConnectionError"
+    except requests.exceptions.JSONDecodeError:
+        return None, "ERROR: JSONDecodeError"
 
-def getting_json_from_web(link):
-    """Ф-я получает список словарей по ссылке"""
-    file = requests.get(link)
-    file = file.json()
-    return file
+def get_filtered_data(data, filtered_empty_from=False):
 
+    data = [x for x in data if "state" in x and x["state"] == "EXECUTED"]
+    if filtered_empty_from:
+        data = [x for x in data if "from" in x]
+    return data
 
-def finding_ides(link, quantity=5, sort_type=True):
-    """Ф-я находит id последних операций и возвращает их в правильном порядке"""
-    list_of_id = []
-    dates = []
-    dict_of_dates = {}
-    file = getting_json_from_web(link)
-    for index in file:
-        if len(index) != 0 and index['state'] == "EXECUTED":
-            date_month_num = index['date'].split('T')
-            year_month_day = date_month_num[0].split('-')
-            index_id = index['id']
-            full_date = year_month_day[0] + year_month_day[1] + year_month_day[2]
-            dates.append(full_date)
-            dict_of_dates[full_date] = index_id
+def get_last_values(data, count_last_values):
+    data = sorted(data, key=lambda x: x["date"], reverse=True)
+    data = data[:count_last_values]
+    return data
 
-    dates.sort(reverse=sort_type)
-    dates = dates[0:quantity]
-    for ides in dates:
-        list_of_id.append(dict_of_dates[ides])
-    return list_of_id
+def get_formatted_data(data):
+    formatted_data = []
+    for row in data:
+        date = datetime.strptime(row["date"], "%Y-%m-%dT%H:%M:%S.%f").strftime("%d.%m.%Y")
+        description = row["description"]
+        from_info, from_bill = "", ""
+        if "from" in row:
+            sender = row["from"].split()
+            from_bill = sender.pop(-1)
+            from_bill = f"{from_bill[:4]} {from_bill[4:6]}** **** {from_bill[-4:]}"
+            from_info = " ".join(sender)
+        to = f"{row['to'].split()[0]} **{row['to'][-4:]}"
+        operation_amount = f"{row['operationAmount']['amount']} {row['operationAmount']['currency']['name']}"
 
+        formatted_data.append(f"""\
+{date} {description}
+{from_info} {from_bill} -> {to}
+{operation_amount}""")
 
-def key_in_list(key, list_):
-    if key in list_:
-        from_ = list_['from'].split(' ')
-        if len(from_) == 3:
-            from_num = from_[2]
-            abs_from = f"{from_[0]} {from_[1]} {from_num[:4]} {from_num[4:6]}** **** {from_num[-4:]} -> "
-        else:
-            from_num = from_[1]
-            abs_from = f"{from_[0]} {from_num[:4]} {from_num[4:6]}** **** {from_num[-4:]} -> "
-    else:
-        abs_from = ''
-    return abs_from
+        return formatted_data
