@@ -4,6 +4,7 @@ from utils import get_filtered_data, get_data, get_last_values, get_formatted_da
 
 
 def test_get_data(test_url):
+
     assert len(get_data(test_url)[0]) > 0
     assert get_data("https://wrong.url.com/")[0] is None
     assert get_data("https://github.com/AnnaPenkinaPython/unittest_proj3")[0] is None
