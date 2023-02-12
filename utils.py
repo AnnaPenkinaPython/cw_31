@@ -2,6 +2,7 @@ import requests
 from datetime import datetime
 from pprint import pprint
 
+
 def get_data(url):
     try:
         response = requests.get(url)
@@ -13,17 +14,19 @@ def get_data(url):
     except requests.exceptions.JSONDecodeError:
         return None, "ERROR: JSONDecodeError"
 
-def get_filtered_data(data, filtered_empty_from=False):
 
+def get_filtered_data(data, filtered_empty_from=False):
     data = [x for x in data if "state" in x and x["state"] == "EXECUTED"]
     if filtered_empty_from:
         data = [x for x in data if "from" in x]
     return data
 
+
 def get_last_values(data, count_last_values):
     data = sorted(data, key=lambda x: x["date"], reverse=True)
     data = data[:count_last_values]
     return data
+
 
 def get_formatted_data(data):
     formatted_data = []
@@ -44,4 +47,4 @@ def get_formatted_data(data):
 {from_info} {from_bill} -> {to}
 {operation_amount}""")
 
-        return formatted_data
+    return formatted_data
